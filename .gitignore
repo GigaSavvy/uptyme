@@ -1,0 +1,6 @@
+report/
+vendor/
+composer.lock
+*.sublime-*
+sites.txt
+log.log
