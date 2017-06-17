@@ -40,7 +40,7 @@ class UptimeCheckerTest extends TestCase
     }
 
     /** @test */
-    public function secureConnectionIsVerified()
+    public function uptimeIsVerified()
     {
         $client = $this->makeHttpClient([
             new Response(200),
@@ -59,7 +59,7 @@ class UptimeCheckerTest extends TestCase
     }
 
     /** @test */
-    public function insecureConnectionIsUnverified()
+    public function noUptimeIsUnverified()
     {
         $client = $this->makeHttpClient([
             new ConnectException('Failed to connect.', new Request('GET', 'test')),
