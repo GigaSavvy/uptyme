@@ -2,11 +2,11 @@
 
 namespace Gigasavvy\HttpsChecker;
 
+use Gigasavvy\HttpsChecker\Observer\Observable;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
-use Psr\Log\LoggerInterface as Logger;
 
-class HttpsChecker
+class HttpsChecker extends Observable
 {
     /**
      * The HTTP client.
@@ -16,22 +16,13 @@ class HttpsChecker
     private $client;
 
     /**
-     * The logger for logging failed domains.
-     *
-     * @var \Psr\Log\LoggerInterface
-     */
-    private $logger;
-
-    /**
      * Create a new instance.
      *
      * @param  \GuzzleHttp\Client  $client
-     * @param  \Psr\Log\LoggerInterface|null  $logger
      */
-    public function __construct(Client $client, Logger $logger = null)
+    public function __construct(Client $client)
     {
         $this->client = $client;
-        $this->logger = $logger;
     }
 
     /**
@@ -46,7 +37,9 @@ class HttpsChecker
 
         foreach ($domains as $domain) {
             if (! $this->validate($domain)) {
-                $this->logFailed($domain);
+                $this->notify('HTTPS validation failed for site: '.$domain, [
+                    'domain' => $domain,
+                ]);
 
                 $failed[] = $domain;
             }
@@ -70,18 +63,5 @@ class HttpsChecker
         }
 
         return true;
-    }
-
-    /**
-     * Log the given domain as failed.
-     *
-     * @param  string  $domain
-     * @return void
-     */
-    private function logFailed($domain)
-    {
-        if (! is_null($this->logger)) {
-            $this->logger->critical('HTTPS validation failed for site: '.$domain);
-        }
     }
 }

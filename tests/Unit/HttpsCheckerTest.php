@@ -3,24 +3,22 @@
 namespace Tests\Unit;
 
 use Gigasavvy\HttpsChecker\HttpsChecker;
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
-use Monolog\Handler\TestHandler;
-use Monolog\Logger;
+use Tests\Support\Concerns\MocksHttp;
+use Tests\Support\Mocks\MockObserver;
 use Tests\TestCase;
 
 class HttpsCheckerTest extends TestCase
 {
+    use MocksHttp;
+
     /** @test */
     public function itMakesRequests()
     {
         $transactions = [];
-        $client = $this->getMockClient([
+        $client = $this->makeHttpClient([
             new Response(200),
             new Response(200),
         ], $transactions);
@@ -44,7 +42,7 @@ class HttpsCheckerTest extends TestCase
     /** @test */
     public function secureConnectionIsVerified()
     {
-        $client = $this->getMockClient([
+        $client = $this->makeHttpClient([
             new Response(200),
             new Response(200),
         ]);
@@ -63,7 +61,7 @@ class HttpsCheckerTest extends TestCase
     /** @test */
     public function insecureConnectionIsUnverified()
     {
-        $client = $this->getMockClient([
+        $client = $this->makeHttpClient([
             new ConnectException('Failed to connect.', new Request('GET', 'test')),
         ]);
 
@@ -75,51 +73,22 @@ class HttpsCheckerTest extends TestCase
     }
 
     /** @test */
-    public function insecureConnectionsGetLogged()
+    public function checkerIsObservable()
     {
-        $client = $this->getMockClient([
+        $client = $this->makeHttpClient([
             new ConnectException('Failed to connect.', new Request('GET', 'test')),
         ]);
-        $logger = $this->getMockLogger();
 
-        $checker = new HttpsChecker($client, $logger);
-        $checker->run(['https://foo.bar']);
+        $checker = new HttpsChecker($client);
+        $observer = new MockObserver();
 
-        $this->assertTrue(
-            $logger->getHandlers()[0]->hasRecord(
-                'HTTPS validation failed for site: https://foo.bar',
-                Logger::CRITICAL
-            )
+        $checker->attach($observer);
+        $checker->run(['https://foo.baz']);
+
+        $this->assertCount(1, $observer->messages());
+        $this->assertEquals(
+            'HTTPS validation failed for site: https://foo.baz',
+            $observer->messages()[0]
         );
-    }
-
-    /**
-     * Get a mock HTTP client for testing.
-     *
-     * @param  array  $responses
-     * @param  array  &$transactions
-     * @return \GuzzleHttp\Client
-     */
-    private function getMockClient($responses = [], &$transactions = [])
-    {
-        $stack = MockHandler::createWithMiddleware($responses);
-        $stack->push(
-            Middleware::history($transactions)
-        );
-
-        return new Client(['handler' => $stack]);
-    }
-
-    /**
-     * Get a mock logger for testing.
-     *
-     * @return \Monolog\Logger;
-     */
-    private function getMockLogger()
-    {
-        $logger = new Logger('test_logger');
-        $logger->pushHandler(new TestHandler());
-
-        return $logger;
     }
 }

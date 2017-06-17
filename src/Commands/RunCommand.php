@@ -3,6 +3,7 @@
 namespace Gigasavvy\HttpsChecker\Commands;
 
 use Gigasavvy\HttpsChecker\HttpsChecker;
+use Gigasavvy\HttpsChecker\Observer\LogObserver;
 use GuzzleHttp\Client as HttpClient;
 use Monolog\Handler\SlackWebhookHandler;
 use Monolog\Handler\StreamHandler;
@@ -15,6 +16,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class RunCommand extends Command
 {
+    private $checker;
+
+    public function __construct(HttpsChecker $checker)
+    {
+        $this->checker = $checker;
+
+        parent::__construct();
+    }
+
     /**
      * Configure the command.
      *
@@ -41,6 +51,12 @@ class RunCommand extends Command
             InputOption::VALUE_REQUIRED,
             'Log to the specified file'
         );
+        $this->addOption(
+            'slack',
+            null,
+            InputOption::VALUE_REQUIRED,
+            'Add a slack webhook to log to for critical errors.'
+        );
     }
 
     /**
@@ -60,7 +76,9 @@ class RunCommand extends Command
             $input->getOption('file')
         );
 
-        $failed = $this->getChecker($log)->run($domains);
+        $this->attachCheckerObservers($log, $input->getOption('slack'));
+
+        $failed = $this->checker->run($domains);
 
         $output->writeln('<info>Checker completed with '.count($failed).' failed domains.</info>');
 
@@ -88,30 +106,30 @@ class RunCommand extends Command
     }
 
     /**
-     * Get the configured checker.
+     * Attach the observers defined in the command.
      *
-     * @return \Gigasavvy\HttpsChecker\HttpsChecker
+     * @param  string|null  $log
+     * @param  string|null  $slack
+     * @return void
      */
-    private function getChecker($log)
+    private function attachCheckerObservers($log, $slack)
     {
-        $logger = new Logger('https_checker_logger');
+        if ($log || $slack) {
+            $logger = new Logger('https_checker_logger');
 
-        if ($log) {
-            $logger->pushHandler(
-                new StreamHandler($log)
-            );
+            if ($log) {
+                $logger->pushHandler(
+                    new StreamHandler($log)
+                );
+            }
+
+            if ($slack) {
+                $logger->pushHandler(
+                    new SlackWebhookHandler($slack, null, 'HTTPS Checker', true, ':lock:')
+                );
+            }
+
+            $this->checker->attach(new LogObserver($logger, Logger::CRITICAL));
         }
-
-        $logger->pushHandler(
-            new SlackWebhookHandler(
-                'https://hooks.slack.com/services/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',
-                null,
-                'HTTPS Checker',
-                true,
-                ':lock:'
-            )
-        );
-
-        return new HttpsChecker(new HttpClient(), $logger);
     }
 }

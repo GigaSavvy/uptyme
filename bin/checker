@@ -3,10 +3,7 @@
 
 require __DIR__.'/../vendor/autoload.php';
 
-$application = new Symfony\Component\Console\Application();
+$application = new Gigasavvy\HttpsChecker\Application();
 
-$application->add(
-    new Gigasavvy\HttpsChecker\Commands\RunCommand()
-);
-
+$application->create();
 $application->run();
