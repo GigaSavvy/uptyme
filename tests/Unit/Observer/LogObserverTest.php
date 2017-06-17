@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Observer;
 
-use Gigasavvy\HttpsChecker\Observer\LogObserver;
+use Gigasavvy\Uptime\Observer\LogObserver;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
 use Tests\Support\Mocks\MockObservable;

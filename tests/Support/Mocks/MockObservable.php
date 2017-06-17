@@ -2,7 +2,7 @@
 
 namespace Tests\Support\Mocks;
 
-use Gigasavvy\HttpsChecker\Observer\Observable;
+use Gigasavvy\Uptime\Observer\Observable;
 
 class MockObservable extends Observable
 {

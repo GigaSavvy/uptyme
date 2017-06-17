@@ -1,6 +1,6 @@
 <?php
 
-namespace Gigasavvy\HttpsChecker\Observer;
+namespace Gigasavvy\Uptime\Observer;
 
 class Message
 {

@@ -3,7 +3,7 @@
 
 require __DIR__.'/../vendor/autoload.php';
 
-$application = new Gigasavvy\HttpsChecker\Application();
+$application = new Gigasavvy\Uptime\Application();
 
 $application->create();
 $application->run();

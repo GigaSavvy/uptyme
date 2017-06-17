@@ -1,12 +1,12 @@
 <?php
 
-namespace Gigasavvy\HttpsChecker;
+namespace Gigasavvy\Uptime;
 
-use Gigasavvy\HttpsChecker\Observer\Observable;
+use Gigasavvy\Uptime\Observer\Observable;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 
-class HttpsChecker extends Observable
+class UptimeChecker extends Observable
 {
     /**
      * The HTTP client.
@@ -37,7 +37,7 @@ class HttpsChecker extends Observable
 
         foreach ($domains as $domain) {
             if (! $this->validate($domain)) {
-                $this->notify('HTTPS validation failed for site: '.$domain, [
+                $this->notify('Site is down: '.$domain, [
                     'domain' => $domain,
                 ]);
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Gigasavvy\HttpsChecker\Observer;
+namespace Gigasavvy\Uptime\Observer;
 
 abstract class Observable
 {
@@ -14,7 +14,7 @@ abstract class Observable
     /**
      * Get the observers attached to this object.
      *
-     * @return \Gigasavvy\HttpsChecker\Observer\Observer[]
+     * @return \Gigasavvy\Uptime\Observer\Observer[]
      */
     public function observers()
     {

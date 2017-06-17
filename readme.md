@@ -1,1 +1,1 @@
-# Composer Package Stub
+# Uptime Checker

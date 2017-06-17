@@ -2,8 +2,8 @@
 
 namespace Tests\Support\Mocks;
 
-use Gigasavvy\HttpsChecker\Observer\Message;
-use Gigasavvy\HttpsChecker\Observer\Observer;
+use Gigasavvy\Uptime\Observer\Message;
+use Gigasavvy\Uptime\Observer\Observer;
 
 class MockObserver implements Observer
 {

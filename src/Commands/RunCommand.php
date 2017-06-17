@@ -1,9 +1,9 @@
 <?php
 
-namespace Gigasavvy\HttpsChecker\Commands;
+namespace Gigasavvy\Uptime\Commands;
 
-use Gigasavvy\HttpsChecker\HttpsChecker;
-use Gigasavvy\HttpsChecker\Observer\LogObserver;
+use Gigasavvy\Uptime\UptimeChecker;
+use Gigasavvy\Uptime\Observer\LogObserver;
 use Monolog\Handler\SlackWebhookHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -17,7 +17,7 @@ class RunCommand extends Command
 {
     private $checker;
 
-    public function __construct(HttpsChecker $checker)
+    public function __construct(UptimeChecker $checker)
     {
         $this->checker = $checker;
 
@@ -137,7 +137,7 @@ class RunCommand extends Command
     private function attachCheckerObservers($log, $slack)
     {
         if ($log || $slack) {
-            $logger = new Logger('https_checker_logger');
+            $logger = new Logger('uptime_logger');
 
             if ($log) {
                 $logger->pushHandler(

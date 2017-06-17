@@ -1,9 +1,9 @@
 <?php
 
-namespace Gigasavvy\HttpsChecker;
+namespace Gigasavvy\Uptime;
 
-use Gigasavvy\HttpsChecker\Commands\RunCommand;
-use Gigasavvy\HttpsChecker\HttpsChecker;
+use Gigasavvy\Uptime\Commands\RunCommand;
+use Gigasavvy\Uptime\UptimeChecker;
 use GuzzleHttp\Client as HttpClient;
 use Monolog\Logger;
 use Symfony\Component\Console\Application as Console;
@@ -16,7 +16,7 @@ class Application
     {
         $this->console = new Console();
 
-        $checker = new HttpsChecker(new HttpClient());
+        $checker = new UptimeChecker(new HttpClient());
 
         $this->console->add(new RunCommand($checker));
     }
