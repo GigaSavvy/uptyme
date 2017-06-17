@@ -4,7 +4,6 @@ namespace Gigasavvy\HttpsChecker\Commands;
 
 use Gigasavvy\HttpsChecker\HttpsChecker;
 use Gigasavvy\HttpsChecker\Observer\LogObserver;
-use GuzzleHttp\Client as HttpClient;
 use Monolog\Handler\SlackWebhookHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -70,18 +69,22 @@ class RunCommand extends Command
     {
         $output->writeln('Checking HTTPS integrity of the given domains...');
 
+        // First, we will attach the necessary observers to the checker based
+        // on the command line input options for which listeners to use.
         $log = $input->getOption('log');
+        $this->attachCheckerObservers($log, $input->getOption('slack'));
+
+        // Next, we will get the domains from the input and run the checker.
         $domains = $this->getDomainsFromInput(
             $input->getArgument('domains'),
             $input->getOption('file')
         );
-
-        $this->attachCheckerObservers($log, $input->getOption('slack'));
-
         $failed = $this->checker->run($domains);
 
-        $output->writeln('<info>Checker completed with '.count($failed).' failed domains.</info>');
-
+        // Finally, we will provide some final output about the command results.
+        $output->writeln(
+            '<info>Checker completed with '.count($failed).' failed domains.</info>'
+        );
         if ($log) {
             $output->writeln('Check logs for more info ('.$log.')');
         }
@@ -97,12 +100,31 @@ class RunCommand extends Command
     private function getDomainsFromInput($input, $isFile = false)
     {
         if ($isFile) {
-            $contents = file_get_contents($input[0]);
-
-            return explode(",", trim($contents));
+            return $this->getDomainsFromFile($input[0]);
         } else {
             return $input;
         }
+    }
+
+    /**
+     * Get the domains from the given file path.
+     *
+     * @param  string  $filepath
+     * @return array
+     */
+    private function getDomainsFromFile($filepath)
+    {
+        // First, we will get the contents from the file which will contain
+        // the desired domains to check, delimited by a newline.
+        $contents = file_get_contents($filepath);
+
+        // Next, we will explode the contents at the delimiter.
+        $domains = explode("\n", $contents);
+
+        // Finally, we will filter all the domains to ensure they are valid URLs.
+        return array_filter($domains, function ($domain) {
+            return filter_var($domain, FILTER_VALIDATE_URL);
+        });
     }
 
     /**
