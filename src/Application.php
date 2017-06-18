@@ -10,8 +10,18 @@ use Symfony\Component\Console\Application as Console;
 
 class Application
 {
+    /**
+     * The console component.
+     *
+     * @var \Symfony\Component\Console\Application
+     */
     protected $console;
 
+    /**
+     * Create the application.
+     *
+     * @return void
+     */
     public function create()
     {
         $this->console = new Console();
@@ -21,6 +31,11 @@ class Application
         $this->console->add(new RunCommand($checker));
     }
 
+    /**
+     * Run the application.
+     *
+     * @return void
+     */
     public function run()
     {
         $this->console->run();
