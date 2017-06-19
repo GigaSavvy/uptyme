@@ -1,5 +1,5 @@
 {
-    "name": "gigasavvy/uptime",
+    "name": "gigasavvy/uptyme",
     "description": "CLI-based script to verify websites are up.",
     "keywords": [],
     "license": "MIT",
@@ -28,5 +28,5 @@
     "require-dev": {
         "phpunit/phpunit": "^6.2"
     },
-    "bin": ["bin/uptime"]
+    "bin": ["bin/uptyme"]
 }
