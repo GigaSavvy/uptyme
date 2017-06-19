@@ -85,8 +85,13 @@ class RunCommand extends Command
         $output->writeln(
             '<info>Checker completed with '.count($failed).' failed domains.</info>'
         );
+
         if ($log) {
             $output->writeln('Check logs for more info ('.$log.')');
+        } elseif (count($failed)) {
+            $output->writeln('<error>Failed domains:</error>');
+
+            $output->writeln($failed);
         }
     }
 
